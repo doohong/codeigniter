@@ -19,7 +19,7 @@
 
 		<td>
 
-		<input type="file" name="userfile" size="20" />
+		<input type="file" name="userfile" size="20" value="C:\Apache24\htdocs\upload\ 4\b5dcf28bea23dfb4e211a4b7fa02bf69.jpg">
 		</td>
 	</tr>
 	<tr>

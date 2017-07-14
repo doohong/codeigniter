@@ -11,15 +11,15 @@ class User_c extends CI_Controller
         $this->load->helper('url');
         $this->load->library('session');
         $this->load->helper('date');
-        $config['upload_path']          = 'C:\Apache24\htdocs\upload';
-        $config['allowed_types']        = 'gif|jpg|png';
-        $config['max_size']             = 100;
-        $config['max_width']            = 1024;
-        $config['max_height']           = 1024;
-        $config['encrypt_name']         = TRUE;
+       
+		$this->load->helper('directory');
+		$config['upload_path']          = "C:\Apache24\htdocs\upload";
+	    $config['allowed_types']        = 'gif|jpg|png';
+	    $config['max_size']             = 100;
+	    $config['max_width']            = 1024;
+	    $config['max_height']           = 1024;
+	    $config['encrypt_name']         = TRUE;
 		$this->load->library('upload', $config);
-		
-
 		
 
 		
@@ -29,34 +29,19 @@ class User_c extends CI_Controller
 	{
 
 		$this->load->library('pagination');
-
-		$config['first_tag_open']  = '<span id=page>';
-		$config['first_tag_close']  = '</span>';
-		$config['last_tag_open']  = '<span id=page>';
-		$config['last_tag_close']  = '</span>';
-		$config['cur_tag_open']  = '<span id=page>';
-		$config['cur_tag_close']  = '</span>';
-		$config['next_tag_open']  = '<span id=page>';
-		$config['next_tag_close']  = '</span>';
-		$config['prev_tag_open']  = '<span id=page>';
-		$config['prev_tag_open']  = '<span id=page>';
-		$config['prev_tag_close']  = '</span>';
-		$config['num_tag_open']  = '<span id=page>';
-		$config['num_tag_close']  = '</span>';
-
-
 		$config['base_url'] = 'http://localhost/index.php/user_c/index';
 		$config['total_rows'] = $this ->noticeboard_m->read_m('count');
 		$config['per_page'] = 5;
+		$config['use_page_numbers'] = TRUE;
+
 		$this->pagination->initialize($config); 
 		$read['pagination'] = $this -> pagination -> create_links();
-		 $page = $this -> uri -> segment(3, 1);
- 
+		$page = $this -> uri -> segment(3, 1);
         if ($page > 1) {
 
-            $start = (($page / $config['per_page'])) * $config['per_page'];
+            $start = ($page-1) * $config['per_page'];
         } else {
-            $start = ($page - 1) * $config['per_page'];
+            $start = 0;
         }
  
         $limit = $config['per_page'];
@@ -69,6 +54,48 @@ class User_c extends CI_Controller
 		
 		$this -> load -> view('footer');
 
+	}
+	public function search_c()
+	{
+
+		$searchinfo = array
+		(
+			'searchlist' => $this->input->get('search'),
+			'searchcontents' => $this->input->get('searchcontents'),
+			'searchfile' => $this->input->get('file_existence')
+		);
+		if($searchinfo['searchfile']!=1)
+			$searchinfo['searchfile']=0;
+		$search_list = $this->input->get('search');
+		$search_contents = $this->input->get('searchcontents');
+		$search_file =$this->input->get('file_existence');
+		$this->load->library('pagination');
+		$config['base_url'] = "http://localhost/index.php/user_c/search_c?search=$search_list&searchcontents=$search_contents&file_existence=$search_file";
+		http://localhost/index.php/user_c/search_c?search=title&searchcontents=s
+		$config['total_rows'] = $this ->noticeboard_m->search_m('count','','',$searchinfo);
+		$config['per_page'] = 5;
+		$config['page_query_string'] = TRUE;
+		$config['enable_query_strings'] =TRUE;
+		
+		$config['use_page_numbers'] = TRUE;
+		$this->pagination->initialize($config); 
+		$read['pagination'] = $this -> pagination -> create_links();
+		 $page = $this->input->get('per_page');
+		 
+        if ($page > 1) {
+
+            $start = ($page-1) * $config['per_page'];
+        } else {
+            $start = 0;
+        }
+        $limit = $config['per_page'];
+		$read['list'] = $this->noticeboard_m->search_m('',$start,$limit,$searchinfo);
+
+		$this -> load -> view('head');
+		$this -> load -> view('index');
+		$this -> load -> view('board',$read);
+		$this -> load -> view('footer');
+		
 	}
 
 	public function login()
@@ -180,7 +207,7 @@ class User_c extends CI_Controller
 			$this -> load -> view('head');
 			$this -> load -> view('create_form');
 			$this -> load -> view('footer');
-			echo  $this->db->insert_id();
+			
 		}
 		else{
 			redirect('http://localhost/index.php/user_c/login','refresh');
@@ -189,25 +216,47 @@ class User_c extends CI_Controller
 
 	public function create()
 	{
-		
+
+
+
 		if($this->upload-> do_upload())
 		{
+
+
 			$posts = array( 
 			'title' => $this->input->post('title'),
 			'contents' => $this->input->post('contents'),
 			'unum' => $this->session->userdata('login_num'),
 			'date' => date("Y-m-d H:i"),
-			'ufile' => $this->upload->data('file_name')
+			'ufile' => TRUE
 			);
-			$this->noticeboard_m->create_m($posts);
+			$filenum = $this->noticeboard_m->create_m($posts);
+			
+			mkdir("C:\Apache24\htdocs\upload\ $filenum",0777);
+			$filename = $this->upload->data('file_name');
+			$file = "C:\Apache24\htdocs\upload\\$filename";
+			$file2= "C:\Apache24\htdocs\upload\ $filenum\\$filename";
+				
+			$fileinfo = array
+			(
+				'filenum' => $filenum,
+				'filename' => $this->upload->data('file_name')	
+			);
+			$this->noticeboard_m->filecreate($fileinfo);
 			$msg['msg']='작성이 완료 되었습니다.';
 			$this -> load -> view('head');
 			$this -> load -> view('msg',$msg);
 			$this -> load -> view('footer');
-		    
-		}
+			 
+      		rename($file,$file2);
+      	 		
+      
+ 		 } 
+		
+
 		else if($this->upload->data('file_name')==NULL)
-		{
+		{	
+
 			$posts = array( 
 			'title' => $this->input->post('title'),
 			'contents' => $this->input->post('contents'),
@@ -215,12 +264,13 @@ class User_c extends CI_Controller
 			'date' => date("Y-m-d H:i"),
 			'ufile' => NULL
 			);
+			echo $this->db->insert_id();
 			$this->noticeboard_m->create_m($posts);
 			$msg['msg']='작성이 완료 되었습니다.';
 			$this -> load -> view('head');
 			$this -> load -> view('msg',$msg);
 			$this -> load -> view('footer');
-			echo  $this->db->insert_id();
+			
 		}
 		else
 		{
