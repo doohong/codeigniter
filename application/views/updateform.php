@@ -50,9 +50,9 @@ $(function(){
 
 $( "#submit_btn" ).click(function(){
 	oEditors.getById["contents"].exec("UPDATE_CONTENTS_FIELD",[]);
-	if(!form.title.value) {
+	if(!fm.title.value) {
         alert("제목을 입력해주세요");
-        form.title.focus();
+        fm.title.focus();
         return;
     }
 	$("#fm").submit();

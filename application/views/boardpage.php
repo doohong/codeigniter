@@ -49,7 +49,7 @@
 	<input type="submit" class="btn btn-default" value="수정">
 </form>
 
-<button action="http://localhost/index.php/user_c/update" id ="update-btn">
+<button id ="update-btn">
 수정</button> 
 
 <form action="http://localhost/index.php/user_c/deleteboard" method="post">
@@ -61,30 +61,23 @@
 <script>
 $( "#update-btn" ).click(function() {
   
-  	var idfind = $("#id-id").val();
+  	var num = <?php echo $boardnum; ?>;
 
     $.ajax({
-    	type:'POST',
-    	url:'idfinder',
+    	type:'post',
+    	url:'http://localhost/index.php/user_c/update',
     	dataType:'json',
-    	data:{idfind : idfind} ,
+    	data:{boardnum : num} ,
     	success:function(data){
-           		if(data==0)
-           	  {
-                alert('사용 가능');
-               
-              }
+    		if(data==1)
+    		location.href = "http://localhost/index.php/user_c/update";
+    	},
+    	error : function(error) {
+       		 alert("Error!");
+   		 },
 
-              
-            
-           		else
-           		{
-           			alert('사용 불가능');
-           		}
-           		
-        },
-        
-    })
+
+    });
 
   });
 </script>

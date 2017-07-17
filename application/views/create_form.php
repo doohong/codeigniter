@@ -7,7 +7,7 @@
 	
 	<tr>
 
-	<td>	<input type="text" name = "title" class="form-control" placeholder="제목" required id="title"></td>
+	<td>	<input type="text" name = "title" class="form-control" required placeholder="제목"  id="title"></td>
 	</tr>
 	
 	
@@ -59,13 +59,14 @@ $(function(){
 
 $( "#submit_btn" ).click(function(){
 	oEditors.getById["contents"].exec("UPDATE_CONTENTS_FIELD",[]);
-	if(!form.title.value) {
-        alert("제목을 입력해주세요");
-        form.title.focus();
+	if(!fm.title.value) {
+       	alert("제목을 입력해주세요");
+       	fm.title.focus();
         return;
     }
+    else{
 	$("#fm").submit();
-
+}
 });
 })
 </script>

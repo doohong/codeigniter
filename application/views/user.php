@@ -14,7 +14,8 @@ $( "#btn-over" ).click(function() {
   
   	var idfind = $("#id-id").val();
 
-    $.ajax({
+    $.ajax(
+    {
     	type:'POST',
     	url:'idfinder',
     	dataType:'json',
@@ -35,7 +36,8 @@ $( "#btn-over" ).click(function() {
            		
         },
         
-    })
+    }
+    )
 
   });
 </script>
