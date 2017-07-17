@@ -380,7 +380,14 @@ class User_c extends CI_Controller
 
 	}
 
-	
+	public function a()
+	{
+		$this -> load ->view ('head');
+		$this -> load ->view ('a');
+		$this -> load ->view ('footer');
+		
+
+	}
 
 }
 ?>
